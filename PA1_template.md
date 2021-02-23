@@ -7,7 +7,8 @@ output:
 
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 #Read in the data
 activity <- read.csv("activity.csv")
 
@@ -23,33 +24,62 @@ interval.df <- data.frame(av.steps= interval.av.steps, interval=time.interval)
 
 ## Histogram of total number of steps taken each day
 
-```{r}
+
+```r
 hist(daily.sum.steps, main="Histogram of daily number of steps taken", 
      xlab="Nubmer of steps")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
 ## Mean and median number of steps taken each day
 
-```{r}
+
+```r
 mean.steps <- mean(daily.sum.steps)
 mean.steps
+```
+
+```
+## [1] 9354.23
+```
+
+```r
 median.steps <- median(daily.sum.steps)
 median.steps
 ```
-The mean number of steps taken daily is `r mean.steps` and the median number of steps taken daily is `r median.steps`.
+
+```
+## [1] 10395
+```
+The mean number of steps taken daily is 9354.2295082 and the median number of steps taken daily is 10395.
 
 ## Time Series plot of average number of steps taken per time interval
 
-```{r}
+
+```r
 library(ggplot2)
-ggplot(interval.df, aes(x=interval, y=av.steps)) + geom_line() +
-  labs(y="Average number of steps")
+```
 
 ```
+## Warning: package 'ggplot2' was built under R version 4.0.3
+```
+
+```r
+ggplot(interval.df, aes(x=interval, y=av.steps)) + geom_line() +
+  labs(y="Average number of steps")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 ## Find the interval that contains the maximum average number of steps
 
-```{r}
+
+```r
 interval.df$interval[interval.df$av.steps==max(interval.df$av.steps)]
+```
+
+```
+## [1] 835
 ```
 
 The interval with the largest average number of steps is from 8:35-8:40 in the morning.
@@ -58,16 +88,22 @@ The interval with the largest average number of steps is from 8:35-8:40 in the m
 
 ### Count the number of NA values
 
-```{r}
+
+```r
 num.NA <- sum(is.na(activity$steps))
 num.NA
 ```
 
-There are `r num.NA` missing values in the data set.
+```
+## [1] 2304
+```
+
+There are 2304 missing values in the data set.
 
 ### Replace the missing values with the average of the non-missing values for that 5 minute interval
 
-```{r}
+
+```r
 imputed.activity <- activity
 
 #Replace the NA's with the average from that time interval over all days
@@ -85,11 +121,28 @@ imputed.daily.sum.steps <- tapply(imputed.activity$steps, imputed.activity$date,
 
 ### Create the histogram and compute the mean and median of this new data set
 
-```{r}
+
+```r
 hist(imputed.daily.sum.steps, main="Histogram of daily number of steps taken",
      xlab ="Number of steps")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+```r
 mean(imputed.daily.sum.steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(imputed.daily.sum.steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 
@@ -97,7 +150,8 @@ median(imputed.daily.sum.steps)
 
 ### Create a factor variable for weekend vs. weekday
 
-```{r}
+
+```r
 imputed.activity$day <- weekdays(as.Date(imputed.activity$date))
 for (i in 1:length(imputed.activity$day)){
   if(imputed.activity$day[i]=="Saturday") {
@@ -114,7 +168,8 @@ imputed.activity$week <- as.factor(imputed.activity$week)
 
 ### Create data frames for plots
 
-```{r}
+
+```r
 weekday.av.steps <- tapply(imputed.activity$steps[imputed.activity$week == "weekday"], 
                    imputed.activity$interval[imputed.activity$week =="weekday"],  mean, na.rm=TRUE)
 weekend.av.steps <- tapply(imputed.activity$steps[imputed.activity$week == "weekend"], 
@@ -124,16 +179,16 @@ weekday.df <- data.frame(av.steps = weekday.av.steps, day = rep("weekday",times=
 weekend.df <- data.frame(av.steps = weekend.av.steps, day = rep("weekend",times=length(weekend.av.steps)), interval=time.interval)
 
 week.df <- rbind(weekday.df, weekend.df)
-
 ```
 
 ### Plot the data
 
-```{r}
+
+```r
 ggplot(week.df, aes(x=interval, y=av.steps)) + geom_line() + facet_grid(day~.) +
   labs(y="Average steps")
-
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
 
 
